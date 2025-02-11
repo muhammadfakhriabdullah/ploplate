@@ -1,0 +1,101 @@
+<script setup lang="ts">
+const props = defineProps({
+  stickyHeader: {
+    type: Boolean,
+    default() {
+      return false;
+    },
+  },
+  fixedHeader: {
+    type: Boolean,
+    default() {
+      return false;
+    },
+  },
+});
+
+const isLoading = ref(false);
+
+const action = (param: any) => {
+    console.log(`this is action ${param}`)
+}
+
+const menuItems = [
+  {
+    text: 'Menu 1',
+    action: ()=>action('1')
+  },
+  {
+    text: 'Menu 2',
+    action: ()=>action('2')
+  },
+  {
+    text: 'Menu 3',
+    action: ()=>action('3')
+  },
+]
+
+</script>
+
+<template>
+  <div
+    class="w-full bg-[#000F18] transition-all duration-300 ease-in-out header h-[80px] flex items-center"
+    :class="
+      [
+        stickyHeader ? 'sticky' : '',
+        fixedHeader ? 'fixed-header' : '',
+        'top-0 left-0',
+      ].join(' ')
+    "
+  >
+    <div class="header container mx-auto py-2">
+      <div class="flex justify-between">
+        <NuxtLink class="items-center flex" to="/">
+          <img :src="IconLogo" class="cursor-pointer" />
+        </NuxtLink>
+        <div class="flex items-center text-white">
+          <button
+            v-for="item in menuItems"
+            @click="item.action"
+            class="mr-4 "
+          >
+            <span class="text-base font-semibold">{{item.text}}</span>
+          </button>
+          <template v-if="!isLoading">
+            <button
+              
+              class="mr-4"
+            >
+              Daftar
+            </button>
+            <BaseButton >
+              Masuk
+            </BaseButton>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.header {
+  &.fixed-header {
+    animation: fixed-slide-in 0.5s ease-out;
+    @apply w-full m-auto;
+    @media (max-width: 767px) {
+      position: sticky;
+    }
+  }
+}
+
+@keyframes fixed-slide-in {
+  0% {
+    top: -83px;
+  }
+
+  100% {
+    top: 0;
+  }
+}
+</style>
