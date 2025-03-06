@@ -3,6 +3,7 @@
     @click.stop="onClick($event)"
     :class="classes"
     :disabled="attrs.disabled === 'true' || props.loading"
+    class="relative overflow-hidden"
   >
     <div v-show="!props.loading"><slot></slot></div>
     <div v-show="props.loading" class="loader mt-2"></div>
@@ -16,7 +17,7 @@ const attrs = useAttrs()
 
 interface IProps {
   variant: 'primary' | 'secondary' | 'tertiary'
-  size: 'small' | 'medium' | 'large' | 'extra'
+  size: 'small' | 'medium' | 'large' | 'extra' | 'block'
   buttonStyle?: 'round' | 'square'
   loading?: boolean
 }
@@ -76,6 +77,24 @@ const classes = computed(() => {
     arrayClass.push('opacity-20 cursor-not-allowed')
   }
 
+  switch (props.size) {
+    case 'small':
+      arrayClass.push('min-w-[50px] h-7 text-xs')
+      break;
+    case 'medium':
+      arrayClass.push('min-w-[64px] h-9 text-sm')
+      break;
+    case 'large':
+      arrayClass.push('min-w-[78px] h-11 text-base')
+      break;
+    case 'extra':
+      arrayClass.push('min-w-[92px] h-14 text-lg')
+      break;
+    case 'block':
+      arrayClass.push('w-full block py-2 text-lg')
+      break;
+  }
+
   switch (props.buttonStyle) {
   case 'round':
     arrayClass.push('rounded-full') // Ensure it's added
@@ -94,15 +113,15 @@ const classes = computed(() => {
 
 <style lang="scss">
 .btn-primary {
-  @apply border-button-border-primary hover:border-button-border-hover-primary bg-button-bg-primary hover:shadow-none hover:bg-button-bg-hover-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-ring-focus-primary items-center block px-10 py-2 font-normal text-center text-button-text-primary transition duration-300 ease-in-out transform border ;
+  @apply border-button-border-primary hover:border-button-border-hover-primary bg-button-bg-primary hover:shadow-none hover:bg-button-bg-hover-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-ring-focus-primary items-center block px-10 font-normal text-center text-button-text-primary transition duration-300 ease-in-out transform border ;
 }
 
 .btn-secondary {
-  @apply text-ultramarine  hover:border-ultramarine focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ultramarine hover:shadow-none items-center block px-10 py-2 text-base font-normal text-center transition duration-300 ease-in-out transform bg-white border-2 rounded-md;
+  @apply text-button-text-secondary hover:border-button-border-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-button-border-secondary hover:shadow-none items-center block px-10 py-2 text-base font-normal text-center transition duration-300 ease-in-out transform bg-button-bg-secondary ;
 }
 
 .btn-tertiary {
-  @apply border-gun bg-gun hover:shadow-none hover:bg-river focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-river hover:border-river items-center block px-10 py-2 font-normal text-center text-white transition duration-300 ease-in-out transform border-2 rounded-md;
+  @apply border-gun bg-gun hover:shadow-none hover:bg-river focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-river hover:border-river items-center block px-10 py-2 font-normal text-center text-white transition duration-300 ease-in-out transform rounded-md;
 }
 
 .loader {
