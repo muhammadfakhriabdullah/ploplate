@@ -1,77 +1,74 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useForm, useField } from "vee-validate";
+import * as yup from "yup";
 
-const props = defineProps({
-  disabled: {
-    type: Boolean,
-    default() {
-      return false;
-    },
-  },
-  label: {
-    type: String,
-    default() {
-      return "Title";
-    },
-  },
-  helperText: {
-    type: String,
-    default() {
-      return null;
-    },
-  },
-  errorText: {
-    type: String,
-    default() {
-      return null;
-    },
-  },
-  password: {
-    type: Boolean,
-    default() {
-      return false;
-    },
-  },
-  date: {
-    type: Boolean,
-    default() {
-      return false;
-    },
-  },
-  radio: {
-    type: Boolean,
-    default() {
-      return false;
-    },
-  },
-  error: {
-    type: Boolean,
-    default() {
-      return true;
-    },
-  },
-  variant: {
-    type: String,
-    default() {
-      return "general";
-    },
-  },
-  modelValue: {
-    type: String,
-    default: "",
-    required: true,
-  },
+
+
+interface Props {
+  disabled?: boolean;
+  label: string;
+  helperText?: string | null;
+  errorText?: string | null;
+  password?: boolean;
+  variant?: string;
+  required?: boolean;
+  requiredText?: string;
+  validationRegex?: RegExp; // Optional
+  validationMessage?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  requiredText: 'This field is required'
 });
 
+
+const schema = yup.object({
+  inputValue: yup
+    .string()
+    .when([], {
+      is: () => props.required, // Use the variable here
+      then: (schema: any) =>
+        schema.required(
+          props.requiredText
+        ),
+      otherwise: (schema: any) => schema.notRequired(),
+    })
+    .when([], {
+      is: () => props.validationRegex,
+      then: (schema: any) => 
+        schema.matches(
+          props.validationRegex,
+          props.validationMessage
+        ),
+    }),
+});
+// select schema as validationSchema for VeeValidate
+const { values, errors, defineField } = useForm({
+  validationSchema: schema,
+});
+
+const { value: inputValue, errorMessage } = useField("inputValue", schema);
 const emit = defineEmits(["update:modelValue"]);
 
 const hidePassword = ref(true);
 const firstInput = ref(true);
 
-const updateValue = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  emit("update:modelValue", target?.value);
-};
+
+// Watch input value changes
+watch(inputValue, (newValue) => {
+  emit("update:modelValue", newValue);
+});
+
+
+const error = defineModel('error')
+
+// Watch error message and emit
+watch(errorMessage, (newError) => {
+  
+  error.value = errorMessage
+});
+
 
 const inputClasses = computed(() => {
   const arrayClasses: Array<string> = [];
@@ -101,7 +98,7 @@ const inputContainerClasses = computed(() => {
 <template>
   <div
     v-bind="$attrs"
-    class="inline-block py-2 border-white relative"
+    class="inline-block py-2 border-input-text-border bg-input-text-background relative"
     :class="inputContainerClasses"
   >
     <input
@@ -113,7 +110,7 @@ const inputContainerClasses = computed(() => {
       :user-scalable="computedUserScalable"
       placeholder=""
       :disabled="disabled"
-      :value="modelValue"
+      v-model="inputValue"
       @input="updateValue"
       :class="inputClasses"
       class="md-input"
@@ -132,7 +129,7 @@ const inputContainerClasses = computed(() => {
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
-        stroke="white"
+        stroke="gray"
         class="size-6"
       >
         <path
@@ -152,7 +149,7 @@ const inputContainerClasses = computed(() => {
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
-        stroke="white"
+        stroke="gray"
         class="size-6"
       >
         <path
@@ -164,11 +161,8 @@ const inputContainerClasses = computed(() => {
     </div>
   </div>
   <div>
-    <div
-      v-if="errorText && firstInput"
-      class="text-xs mb-0 text-red-500 leading-5"
-    >
-      {{ props.errorText }}
+    <div v-if="errors.inputValue" class="text-xs mb-0 text-red-500 leading-5">
+      {{ errors.inputValue }}
     </div>
     <div v-if="helperText" class="text-xxs opacity-50 text-white">
       {{ props.helperText }}
@@ -184,7 +178,7 @@ input:focus {
 }
 
 .md-label {
-  @apply absolute pointer-events-none block text-sm text-gray-400 bg-black px-2 rounded-full;
+  @apply absolute pointer-events-none block text-sm text-gray-400 bg-input-text-bg-label px-2 rounded-full;
   display: block;
   position: absolute;
   pointer-events: none;
@@ -196,11 +190,11 @@ input:focus {
 }
 
 .md-input {
-  @apply bg-transparent text-white;
+  @apply bg-transparent text-input-text-text-input;
 }
 
 .md-label-focus {
-  @apply text-white;
+  @apply text-text-primary;
   transform: translate(0, -65px) scale(0.75);
   transform-origin: top left;
 }
