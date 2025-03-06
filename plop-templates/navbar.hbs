@@ -39,7 +39,7 @@ const menuItems = [
 
 <template>
   <div
-    class="w-full bg-[#000F18] transition-all duration-300 ease-in-out header h-[80px] flex items-center"
+    class="w-full bg-theme transition-all duration-300 ease-in-out header h-[80px] flex items-center"
     :class="
       [
         stickyHeader ? 'sticky' : '',
@@ -51,9 +51,9 @@ const menuItems = [
     <div class="header container mx-auto py-2">
       <div class="flex justify-between">
         <NuxtLink class="items-center flex" to="/">
-          <img :src="IconLogo" class="cursor-pointer" />
+          <img src="/logo/logo.svg" class="cursor-pointer w-12 h-12" />
         </NuxtLink>
-        <div class="flex items-center text-white">
+        <div class="flex items-center text-text-primary">
           <button
             v-for="item in menuItems"
             @click="item.action"
@@ -62,13 +62,15 @@ const menuItems = [
             <span class="text-base font-semibold">{{item.text}}</span>
           </button>
           <template v-if="!isLoading">
-            <button
-              
+            <BaseButton
+              variant="primary"
+              button-style="round"
+              size="medium"
               class="mr-4"
             >
               Daftar
-            </button>
-            <BaseButton >
+            </BaseButton>
+            <BaseButton variant="secondary" button-style="round" size="medium">
               Masuk
             </BaseButton>
           </template>
